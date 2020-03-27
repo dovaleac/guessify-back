@@ -1,0 +1,98 @@
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP SCHEMA if exists games cascade;
+CREATE SCHEMA games;
+
+CREATE TABLE games.room (
+    id serial primary key,
+    number character varying not null,
+    password character varying not null
+);
+
+CREATE TABLE games.scoring (
+    id serial primary key,
+    scorings character varying,
+    malus_if_missed integer
+);
+
+CREATE TABLE games.game_config (
+    id serial primary key,
+    total_rounds integer not null,
+    clues_per_question integer default 5,
+    errors_allowed_per_question integer default 1,
+    scoring_id integer not null references games.scoring(id)
+);
+
+CREATE TABLE games.question_set (
+    id serial primary key
+);
+
+CREATE TABLE games.game (
+    id serial primary key,
+    room_id integer not null references games.room(id),
+    game_config_id integer not null references games.game_config(id),
+    status character varying,
+    question_set_id integer not null references games.question_set(id)
+);
+
+CREATE TABLE games.player (
+    id serial primary key,
+    room_id integer not null references games.room(id),
+    name character varying,
+    role character varying,
+    points integer default 0,
+    status character varying
+);
+
+ALTER TABLE games.game ADD COLUMN master_player_id integer not null references games.player(id);
+
+CREATE TABLE games.question (
+    id serial primary key,
+    question_set_id integer not null references games.question_set(id),
+    clues character varying [],
+    answer character varying
+);
+
+CREATE TABLE games.question_in_game (
+    id serial primary key,
+    question_id integer not null references games.question(id),
+    game_id integer not null references games.game(id),
+    current_clue integer default 0,
+    execution_order integer,
+    status character varying
+);
+
+CREATE TABLE games.answer (
+    id serial primary key,
+    question_in_game_id integer not null references games.question_in_game(id),
+    player_id integer not null references games.player(id),
+    answer character varying,
+    status character varying,
+    round integer,
+    moment timestamptz
+);
+
+CREATE TABLE games.player_in_scoreboard (
+    id serial primary key,
+    game_id integer not null references games.game(id),
+    player_id integer not null references games.player(id),
+    points integer,
+    questions_guessed integer
+);
+
+CREATE TABLE games.clue_request (
+    id serial primary key,
+    question_in_game_id integer not null references games.question_in_game(id),
+    player_id integer not null references games.player(id),
+    moment timestamptz,
+    round integer
+);
+

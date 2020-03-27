@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: guessing-game
+
+jdbc:
+  user: pablogonzalez
+  password: c
+  host: localhost
+  port: 5432

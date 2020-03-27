@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: guessing.game
+---
+testFramework: junit
+sourceLanguage: java
