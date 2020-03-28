@@ -3,8 +3,9 @@ package com.dovaleac.guessing.game.service;
 import com.dovaleac.guessing.game.dao.GameConfigurationDao;
 import com.dovaleac.guessing.game.dao.GameDao;
 import com.dovaleac.guessing.game.dao.QuestionDao;
+import com.dovaleac.guessing.game.dao.ScoreboardDao;
 import com.dovaleac.guessing.game.dao.ScoringDao;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.GameRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
 import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.request.GameConfiguration;
 import com.dovaleac.guessing.game.model.request.Question;
@@ -18,31 +19,33 @@ public class GameServiceImpl implements GameService {
   private final GameConfigurationDao gameConfigurationDao;
   private final ScoringDao scoringDao;
   private final QuestionDao questionDao;
+  private final ScoreboardDao scoreboardDao;
 
   public GameServiceImpl(
       GameDao gameDao,
       GameConfigurationDao gameConfigurationDao,
       ScoringDao scoringDao,
-      QuestionDao questionDao) {
+      QuestionDao questionDao, ScoreboardDao scoreboardDao) {
     this.gameDao = gameDao;
     this.gameConfigurationDao = gameConfigurationDao;
     this.scoringDao = scoringDao;
     this.questionDao = questionDao;
+    this.scoreboardDao = scoreboardDao;
   }
 
   @Override
   public GameId createGame(
-      int roomId, int masterId, GameConfiguration gameConfiguration, Integer questionSetId) {
+      int roomId, int masterId, GameConfiguration gameConfiguration, Integer questionSetId, int langId) {
 
     if (questionSetId == null) {
-      questionSetId = questionDao.createQuestionSet().getId();
+      questionSetId = questionDao.createQuestionSet(langId).getId();
     }
 
     Integer scoringId = scoringDao.createScoring(gameConfiguration.getScoring()).getId();
     Integer gameConfigurationId =
         gameConfigurationDao.createGameConfiguration(gameConfiguration, scoringId).getId();
     return new GameId(
-        gameDao.createGame(gameConfigurationId, roomId, masterId, questionSetId).getId());
+        gameDao.createGame(gameConfigurationId, roomId, masterId, questionSetId, langId).getId());
   }
 
   @Override
@@ -52,11 +55,12 @@ public class GameServiceImpl implements GameService {
   }
 
   @Override
-  public boolean startGame(int gameId) {
+  public boolean startGame(int gameId, int roomId) {
     boolean startingWentRight = gameDao.startGame(gameId);
     if (startingWentRight) {
       Integer questionSetId = gameDao.getGameFromId(gameId).getQuestionSetId();
       questionDao.consolidateQuestionsForGame(gameId, questionSetId);
+      scoreboardDao.insertAllAvailablePlayersFromRoom(gameId, roomId);
     }
     return startingWentRight;
   }

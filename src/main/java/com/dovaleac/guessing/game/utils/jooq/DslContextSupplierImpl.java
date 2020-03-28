@@ -17,40 +17,40 @@ import java.util.stream.Stream;
 public class DslContextSupplierImpl implements DslContextSupplier {
   @Value("${jdbc.host}")
   private String host;
+
   @Value("${jdbc.port}")
   private String port;
+
   @Value("${jdbc.user}")
   private String user;
+
   @Value("${jdbc.password}")
   private String password;
 
+  private DSLContext dslContext = null;
+
   @Override
   public <T> T executeFunction(Function<DSLContext, T> function) {
-    try(DSLContext dslContext = getDslContext())
-    {
+    try (DSLContext dslContext = getDslContext()) {
       return function.apply(dslContext);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
   public void executeConsumer(Consumer<DSLContext> consumer) {
-    try(DSLContext dslContext = getDslContext())
-    {
+    try (DSLContext dslContext = getDslContext()) {
       consumer.accept(dslContext);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
-  public <T, IT> T executeFunctionWithStream(Function<DSLContext, Stream<IT>> producer,
-      Function<Stream<IT>, T> consumer) {
-    try(DSLContext dslContext = getDslContext())
-    {
+  public <T, IT> T executeFunctionWithStream(
+      Function<DSLContext, Stream<IT>> producer, Function<Stream<IT>, T> consumer) {
+    try (DSLContext dslContext = getDslContext()) {
       return consumer.apply(producer.apply(dslContext));
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -58,10 +58,9 @@ public class DslContextSupplierImpl implements DslContextSupplier {
   }
 
   @Override
-  public <IT> void executeConsumerWithStream(Function<DSLContext, Stream<IT>> producer,
-      Consumer<Stream<IT>> consumer) {
-    try(DSLContext dslContext = getDslContext())
-    {
+  public <IT> void executeConsumerWithStream(
+      Function<DSLContext, Stream<IT>> producer, Consumer<Stream<IT>> consumer) {
+    try (DSLContext dslContext = getDslContext()) {
       consumer.accept(producer.apply(dslContext));
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -69,11 +68,18 @@ public class DslContextSupplierImpl implements DslContextSupplier {
   }
 
   private DSLContext getDslContext() throws SQLException {
-    return DSL.using(new DefaultConfiguration()
-        .set(DriverManager.getConnection(
-            "jdbc:postgresql://" + host + ":" + port + "/guessing_game",
-            user,
-            password))
-        .set(SQLDialect.POSTGRES));
+    if (dslContext == null) {
+      dslContext =
+          DSL.using(
+              new DefaultConfiguration()
+                  .set(
+                      DriverManager.getConnection(
+                          "jdbc:postgresql://" + host + ":" + port + "/guessing_game",
+                          user,
+                          password))
+                  .set(SQLDialect.POSTGRES));
+    }
+
+    return dslContext;
   }
 }

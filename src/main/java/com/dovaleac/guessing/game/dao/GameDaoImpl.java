@@ -1,9 +1,9 @@
 package com.dovaleac.guessing.game.dao;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.Game;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.GameRecord;
-import com.dovaleac.guessing.game.model.enums.GameStatus;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.Game;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
 import com.dovaleac.guessing.game.model.dto.GameDto;
+import com.dovaleac.guessing.game.model.enums.GameStatus;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
 import javax.inject.Singleton;
@@ -39,11 +39,8 @@ public class GameDaoImpl implements GameDao {
 
   @Override
   public GameRecord getGameFromId(int id) {
-    return dslContextSupplier.executeFunction(dslContext ->
-        dslContext.selectFrom(GAME)
-        .where(GAME.ID.eq(id))
-        .fetchOne()
-    );
+    return dslContextSupplier.executeFunction(
+        dslContext -> dslContext.selectFrom(GAME).where(GAME.ID.eq(id)).fetchOne());
   }
 
   @Override
@@ -57,20 +54,22 @@ public class GameDaoImpl implements GameDao {
   }
 
   private boolean advanceGameStatus(int gameId, GameStatus newStatus, GameStatus currentStatus) {
-    Integer updatedRows = dslContextSupplier.executeFunction(dslContext -> dslContext
-        .update(GAME)
-        .set(GAME.STATUS, newStatus.name())
-        .where(GAME.ID.eq(gameId))
-        .and(GAME.STATUS.eq(currentStatus.name()))
-        .execute()
-    );
+    Integer updatedRows =
+        dslContextSupplier.executeFunction(
+            dslContext ->
+                dslContext
+                    .update(GAME)
+                    .set(GAME.STATUS, newStatus.name())
+                    .where(GAME.ID.eq(gameId))
+                    .and(GAME.STATUS.eq(currentStatus.name()))
+                    .execute());
 
     return updatedRows == 1;
   }
 
   @Override
-  public GameRecord createGame(int gameConfigId, int roomId,
-      int masterPlayerId, int questionSetId) {
+  public GameRecord createGame(
+      int gameConfigId, int roomId, int masterPlayerId, int questionSetId, int langId) {
     return dslContextSupplier.executeFunction(
         dslContext ->
             dslContext
@@ -80,11 +79,15 @@ public class GameDaoImpl implements GameDao {
                     GAME.MASTER_PLAYER_ID,
                     GAME.ROOM_ID,
                     GAME.STATUS,
-                    GAME.QUESTION_SET_ID
-                    )
+                    GAME.QUESTION_SET_ID,
+                    GAME.LANG_ID)
                 .values(
-                    gameConfigId, masterPlayerId, roomId, GameStatus.CREATED.name(), questionSetId
-                )
+                    gameConfigId,
+                    masterPlayerId,
+                    roomId,
+                    GameStatus.CREATED.name(),
+                    questionSetId,
+                    langId)
                 .returning(GAME.ID)
                 .fetchOne());
   }

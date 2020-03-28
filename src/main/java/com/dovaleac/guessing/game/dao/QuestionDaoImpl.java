@@ -1,9 +1,9 @@
 package com.dovaleac.guessing.game.dao;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.QuestionInGame;
-import com.dovaleac.guessing.game.jooq.generated.tables.QuestionSet;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.QuestionRecord;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.QuestionSetRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.QuestionInGame;
+import com.dovaleac.guessing.game.jooq.generated.independent.tables.QuestionSet;
+import com.dovaleac.guessing.game.jooq.generated.independent.tables.records.QuestionRecord;
+import com.dovaleac.guessing.game.jooq.generated.independent.tables.records.QuestionSetRecord;
 import com.dovaleac.guessing.game.model.enums.QuestionInGameStatus;
 import com.dovaleac.guessing.game.model.request.Question;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
@@ -16,22 +16,22 @@ public class QuestionDaoImpl implements QuestionDao {
 
   private static final QuestionSet QUESTION_SET = QuestionSet.QUESTION_SET;
   private static final QuestionInGame QUESTION_IN_GAME = QuestionInGame.QUESTION_IN_GAME;
-  private static final com.dovaleac.guessing.game.jooq.generated.tables.Question QUESTION =
-      com.dovaleac.guessing.game.jooq.generated.tables.Question.QUESTION;
+  private static final com.dovaleac.guessing.game.jooq.generated.independent.tables.Question
+      QUESTION = com.dovaleac.guessing.game.jooq.generated.independent.tables.Question.QUESTION;
   private final DslContextSupplier dslContextSupplier;
 
   public QuestionDaoImpl(DslContextSupplier dslContextSupplier) {
     this.dslContextSupplier = dslContextSupplier;
   }
 
-  @Override
-  public QuestionSetRecord createQuestionSet() {
+  public QuestionSetRecord createQuestionSet(int langId) {
     return dslContextSupplier.executeFunction(
         dslContext ->
             dslContext
                 .insertInto(QUESTION_SET)
-                .defaultValues()
-                    .returning(QUESTION_SET.ID)
+                .columns(QUESTION_SET.LANG_ID)
+                .values(langId)
+                .returning(QUESTION_SET.ID)
                 .fetchOne());
   }
 
@@ -41,8 +41,18 @@ public class QuestionDaoImpl implements QuestionDao {
         dslContext ->
             dslContext
                 .insertInto(QUESTION)
-                .columns(QUESTION.ANSWER, QUESTION.CLUES, QUESTION.QUESTION_SET_ID)
-                .values(question.getAnswer(), question.getClues(), questionSetId)
+                .columns(
+                    QUESTION.ANSWER,
+                    QUESTION.CLUES,
+                    QUESTION.QUESTION_SET_ID,
+                    QUESTION.DIFFICULTY,
+                    QUESTION.FUN_FACTS)
+                .values(
+                    question.getAnswer(),
+                    question.getClues(),
+                    questionSetId,
+                    question.getDifficulty(),
+                    question.getFunFacts())
                 .returning(QUESTION.ID)
                 .fetchOne());
   }
@@ -65,15 +75,14 @@ public class QuestionDaoImpl implements QuestionDao {
                             QUESTION.ID,
                             DSL.val(gameId),
                             DSL.val(0),
-                            DSL.rowNumber()
-                                .over()
-                                .partitionBy(QUESTION.ID)
-                                .orderBy(QUESTION.ID.asc()),
-                            DSL.val(QuestionInGameStatus.READY.name()))
+                            DSL.rowNumber().over().orderBy(QUESTION.ID.asc()),
+                            DSL.when(
+                                DSL.rowNumber().over().orderBy(QUESTION.ID.asc()).eq(1),
+                                QuestionInGameStatus.ACTIVE.name())
+                                .otherwise(QuestionInGameStatus.READY.name()))
                         .from(QUESTION)
                         .where(QUESTION.QUESTION_SET_ID.eq(questionSetId)))
-        .execute()
-    );
+                .execute());
   }
 
   @Override
@@ -86,7 +95,6 @@ public class QuestionDaoImpl implements QuestionDao {
                 .set(QUESTION_IN_GAME.STATUS, newStatus.name())
                 .where(QUESTION_IN_GAME.ID.eq(questionInGameId))
                 .and(QUESTION_IN_GAME.STATUS.eq(oldStatus.name()))
-        .execute()
-    );
+                .execute());
   }
 }

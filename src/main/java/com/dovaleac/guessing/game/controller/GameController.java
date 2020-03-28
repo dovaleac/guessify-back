@@ -4,6 +4,7 @@ import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.request.GameConfiguration;
 import com.dovaleac.guessing.game.model.request.Question;
 import com.dovaleac.guessing.game.service.GameService;
+import com.dovaleac.guessing.game.service.LangService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -21,17 +22,23 @@ import javax.annotation.Nullable;
 public class GameController {
 
   private final GameService gameService;
+  private final LangService langService;
 
-  public GameController(GameService gameService) {
+  public GameController(GameService gameService,
+      LangService langService) {
     this.gameService = gameService;
+    this.langService = langService;
   }
 
   @Post
   public Single<GameId> createGame(@QueryValue Integer roomId, @QueryValue int masterId,
-      @QueryValue @Nullable Integer questionSetId,
+      @QueryValue @Nullable Integer questionSetId, @QueryValue String lang,
       @Body Single<GameConfiguration> gameConfigurationSingle) {
     return gameConfigurationSingle.map(gameConfiguration ->
-        gameService.createGame(roomId, masterId, gameConfiguration, questionSetId));
+    {
+      Integer langId = langService.getLangByAbbrev(lang).getId();
+      return gameService.createGame(roomId, masterId, gameConfiguration, questionSetId, langId);
+    });
   }
 
   @Patch("/{gameId}/questions")
@@ -53,8 +60,8 @@ public class GameController {
   }
 
   @Put("/{gameId}/start")
-  public HttpResponse startGame(@PathVariable Integer gameId) {
-    return gameService.startGame(gameId)
+  public HttpResponse startGame(@PathVariable Integer gameId, @QueryValue int roomId) {
+    return gameService.startGame(gameId, roomId)
         ? HttpResponse.ok()
         : HttpResponse.notFound("Game doesn't exist or can't be started");
   }

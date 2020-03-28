@@ -1,6 +1,6 @@
 package com.dovaleac.guessing.game.model.scoreboard;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.records.AnswerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.AnswerRecord;
 import com.dovaleac.guessing.game.model.enums.AnswerStatus;
 import io.reactivex.Flowable;
 
@@ -31,7 +31,7 @@ public class Scoreboard {
                                   playerPerformance.getQuestionsGuessed() + 1);
                               playerPerformance.setPoints(
                                   playerPerformance.getPoints()
-                                      + pointsFunction.apply(answerRecord.getRound()));
+                                      + pointsFunction.apply(answerRecord.getCurrentClue()));
                               return playerPerformance;
                             })));
   }

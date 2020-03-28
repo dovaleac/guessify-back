@@ -4,6 +4,9 @@
 package com.dovaleac.guessing.game.jooq.generated;
 
 
+import com.dovaleac.guessing.game.jooq.generated.games.Games;
+import com.dovaleac.guessing.game.jooq.generated.independent.Independent;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +30,7 @@ import org.jooq.impl.CatalogImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultCatalog extends CatalogImpl {
 
-    private static final long serialVersionUID = -886301002;
+    private static final long serialVersionUID = -1977219678;
 
     /**
      * The reference instance of <code></code>
@@ -37,7 +40,12 @@ public class DefaultCatalog extends CatalogImpl {
     /**
      * The schema <code>games</code>.
      */
-    public final Games GAMES = com.dovaleac.guessing.game.jooq.generated.Games.GAMES;
+    public final Games GAMES = com.dovaleac.guessing.game.jooq.generated.games.Games.GAMES;
+
+    /**
+     * The schema <code>independent</code>.
+     */
+    public final Independent INDEPENDENT = com.dovaleac.guessing.game.jooq.generated.independent.Independent.INDEPENDENT;
 
     /**
      * No further instances allowed
@@ -55,6 +63,7 @@ public class DefaultCatalog extends CatalogImpl {
 
     private final List<Schema> getSchemas0() {
         return Arrays.<Schema>asList(
-            Games.GAMES);
+            Games.GAMES,
+            Independent.INDEPENDENT);
     }
 }

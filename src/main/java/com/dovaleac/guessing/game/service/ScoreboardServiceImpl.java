@@ -4,7 +4,7 @@ import com.dovaleac.guessing.game.adapter.ScoringAdapter;
 import com.dovaleac.guessing.game.dao.AnswerDao;
 import com.dovaleac.guessing.game.dao.ScoreboardDao;
 import com.dovaleac.guessing.game.dao.ScoringDao;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.AnswerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.AnswerRecord;
 import com.dovaleac.guessing.game.model.scoreboard.Scoreboard;
 import com.dovaleac.guessing.game.utils.reactive.Flowables;
 import io.reactivex.Flowable;

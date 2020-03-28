@@ -11,6 +11,24 @@ SET row_security = off;
 DROP SCHEMA if exists games cascade;
 CREATE SCHEMA games;
 
+DROP SCHEMA if exists independent cascade;
+CREATE SCHEMA independent;
+
+CREATE TABLE independent.lang (
+    id serial primary key,
+    abbrev character(2),
+    name character varying
+);
+
+INSERT INTO independent.lang
+    (abbrev, name)
+VALUES ('en', 'English');
+
+INSERT INTO independent.lang
+    (abbrev, name)
+VALUES ('es', 'Español');
+
+
 CREATE TABLE games.room (
     id serial primary key,
     number character varying not null,
@@ -31,16 +49,18 @@ CREATE TABLE games.game_config (
     scoring_id integer not null references games.scoring(id)
 );
 
-CREATE TABLE games.question_set (
-    id serial primary key
+CREATE TABLE independent.question_set (
+    id serial primary key,
+    lang_id integer not null references independent.lang(id)
 );
 
 CREATE TABLE games.game (
     id serial primary key,
     room_id integer not null references games.room(id),
     game_config_id integer not null references games.game_config(id),
+    lang_id integer not null references independent.lang(id),
     status character varying,
-    question_set_id integer not null references games.question_set(id)
+    question_set_id integer not null references independent.question_set(id)
 );
 
 CREATE TABLE games.player (
@@ -54,16 +74,18 @@ CREATE TABLE games.player (
 
 ALTER TABLE games.game ADD COLUMN master_player_id integer not null references games.player(id);
 
-CREATE TABLE games.question (
+CREATE TABLE independent.question (
     id serial primary key,
-    question_set_id integer not null references games.question_set(id),
+    question_set_id integer not null references independent.question_set(id),
     clues character varying [],
-    answer character varying
+    answer character varying,
+    difficulty integer default 3,
+    fun_facts character varying
 );
 
 CREATE TABLE games.question_in_game (
     id serial primary key,
-    question_id integer not null references games.question(id),
+    question_id integer not null references independent.question(id),
     game_id integer not null references games.game(id),
     current_clue integer default 0,
     execution_order integer,
@@ -76,7 +98,7 @@ CREATE TABLE games.answer (
     player_id integer not null references games.player(id),
     answer character varying,
     status character varying,
-    round integer,
+    current_clue integer,
     moment timestamptz
 );
 
@@ -93,6 +115,6 @@ CREATE TABLE games.clue_request (
     question_in_game_id integer not null references games.question_in_game(id),
     player_id integer not null references games.player(id),
     moment timestamptz,
-    round integer
+    current_clue integer
 );
 

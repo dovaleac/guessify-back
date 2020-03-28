@@ -1,9 +1,9 @@
 package com.dovaleac.guessing.game.dao;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.Player;
-import com.dovaleac.guessing.game.jooq.generated.tables.Room;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.PlayerRecord;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.RoomRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.Player;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.Room;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.PlayerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.RoomRecord;
 import com.dovaleac.guessing.game.model.enums.PlayerRole;
 import com.dovaleac.guessing.game.model.enums.PlayerStatus;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;

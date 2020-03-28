@@ -1,8 +1,8 @@
 package com.dovaleac.guessing.game.dao;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.Answer;
-import com.dovaleac.guessing.game.jooq.generated.tables.QuestionInGame;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.AnswerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.Answer;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.QuestionInGame;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.AnswerRecord;
 import com.dovaleac.guessing.game.model.enums.AnswerStatus;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
@@ -23,7 +23,7 @@ public class AnswerDaoImpl implements AnswerDao {
 
   @Override
   public void createAnswer(
-      int questionInGameId, int playerId, int round, String answer, OffsetDateTime moment) {
+      int questionInGameId, int playerId, int currentClue, String answer, OffsetDateTime moment) {
     dslContextSupplier.executeConsumer(
         dslContext ->
             dslContext
@@ -34,14 +34,14 @@ public class AnswerDaoImpl implements AnswerDao {
                     ANSWER.STATUS,
                     ANSWER.QUESTION_IN_GAME_ID,
                     ANSWER.PLAYER_ID,
-                    ANSWER.ROUND)
+                    ANSWER.CURRENT_CLUE)
                 .values(
                     answer,
                     moment,
                     AnswerStatus.NOT_JUDGED.name(),
                     questionInGameId,
                     playerId,
-                    round)
+                    currentClue)
                 .execute()
     );
   }

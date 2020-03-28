@@ -2,7 +2,7 @@ package com.dovaleac.guessing.game.service;
 
 import com.dovaleac.guessing.game.dao.GameDao;
 import com.dovaleac.guessing.game.dao.RoomDao;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.GameRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
 import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.dto.Player;
 import com.dovaleac.guessing.game.model.dto.RoomId;

@@ -1,6 +1,6 @@
 package com.dovaleac.guessing.game.controller;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.records.PlayerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.PlayerRecord;
 import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.dto.Player;
 import com.dovaleac.guessing.game.model.dto.RoomId;

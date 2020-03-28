@@ -1,7 +1,7 @@
 package com.dovaleac.guessing.game.dao;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.GameConfig;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.GameConfigRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.GameConfig;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameConfigRecord;
 import com.dovaleac.guessing.game.model.request.GameConfiguration;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 

@@ -168,7 +168,14 @@
                         <database>
                             <name>org.jooq.meta.postgres.PostgresDatabase</name>
                             <includeRoutines>false</includeRoutines>
-                            <inputSchema>games</inputSchema>
+                            <schemata>
+                                <schema>
+                                    <inputSchema>games</inputSchema>
+                                </schema>
+                                <schema>
+                                    <inputSchema>independent</inputSchema>
+                                </schema>
+                            </schemata>
 
                         </database>
                         <target>

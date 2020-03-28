@@ -4,6 +4,8 @@ public class Question {
 
   private String[] clues;
   private String answer;
+  private int difficulty;
+  private String funFacts;
 
   public Question() {
   }
@@ -22,5 +24,21 @@ public class Question {
 
   public void setAnswer(String answer) {
     this.answer = answer;
+  }
+
+  public int getDifficulty() {
+    return difficulty;
+  }
+
+  public void setDifficulty(int difficulty) {
+    this.difficulty = difficulty;
+  }
+
+  public String getFunFacts() {
+    return funFacts;
+  }
+
+  public void setFunFacts(String funFacts) {
+    this.funFacts = funFacts;
   }
 }

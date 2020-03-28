@@ -1,9 +1,9 @@
 package com.dovaleac.guessing.game.dao;
 
 import com.dovaleac.guessing.game.adapter.ScoringAdapter;
-import com.dovaleac.guessing.game.jooq.generated.tables.Game;
-import com.dovaleac.guessing.game.jooq.generated.tables.GameConfig;
-import com.dovaleac.guessing.game.jooq.generated.tables.records.ScoringRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.Game;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.GameConfig;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.ScoringRecord;
 import com.dovaleac.guessing.game.model.request.Scoring;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
@@ -12,8 +12,8 @@ import javax.inject.Singleton;
 @Singleton
 public class ScoringDaoImpl implements ScoringDao {
 
-  public static final com.dovaleac.guessing.game.jooq.generated.tables.Scoring SCORING =
-      com.dovaleac.guessing.game.jooq.generated.tables.Scoring.SCORING;
+  public static final com.dovaleac.guessing.game.jooq.generated.games.tables.Scoring SCORING =
+      com.dovaleac.guessing.game.jooq.generated.games.tables.Scoring.SCORING;
   public static final GameConfig GAME_CONFIG = GameConfig.GAME_CONFIG;
   public static final Game GAME = Game.GAME;
 

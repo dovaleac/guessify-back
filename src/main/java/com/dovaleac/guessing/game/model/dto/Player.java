@@ -1,6 +1,6 @@
 package com.dovaleac.guessing.game.model.dto;
 
-import com.dovaleac.guessing.game.jooq.generated.tables.records.PlayerRecord;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.PlayerRecord;
 
 public class Player {
   private int id;
