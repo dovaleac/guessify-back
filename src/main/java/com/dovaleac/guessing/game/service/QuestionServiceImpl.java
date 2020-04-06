@@ -3,11 +3,13 @@ package com.dovaleac.guessing.game.service;
 import com.dovaleac.guessing.game.dao.AnswerDao;
 import com.dovaleac.guessing.game.dao.ClueDao;
 import com.dovaleac.guessing.game.dao.QuestionDao;
+import com.dovaleac.guessing.game.model.dto.ClueRequest;
 import com.dovaleac.guessing.game.model.enums.AnswerStatus;
-import com.dovaleac.guessing.game.model.dto.QuestionDto;
 
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dovaleac.guessing.game.model.enums.QuestionInGameStatus.*;
 
@@ -45,11 +47,6 @@ public class QuestionServiceImpl implements QuestionService {
   public void guess(int questionInGameId, int playerId, int currentClue, String answer) {
     OffsetDateTime time = OffsetDateTime.now();
     answerDao.createAnswer(questionInGameId, playerId, currentClue, answer, time);
-  }
-
-  @Override
-  public QuestionDto getQuestionStatus(int questionInGameId) {
-    return null;
   }
 
   @Override
@@ -93,5 +90,12 @@ public class QuestionServiceImpl implements QuestionService {
   @Override
   public void revealQuestion(int questionInGameId) {
     questionDao.moveQuestionFromOldStatusToNewStatus(questionInGameId, ACTIVE, REVEALED);
+  }
+
+  @Override
+  public List<ClueRequest> getAllClueRequestsForQuestionInGame(int questionInGameId) {
+    return clueDao.getAllClueRequestsForQuestionInGame(questionInGameId)
+        .map(ClueRequest::fromRecord)
+        .collect(Collectors.toList());
   }
 }

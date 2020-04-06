@@ -2,7 +2,8 @@ package com.dovaleac.guessing.game.dao;
 
 import com.dovaleac.guessing.game.jooq.generated.games.tables.Game;
 import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
-import com.dovaleac.guessing.game.model.dto.GameDto;
+import com.dovaleac.guessing.game.jooq.generated.independent.tables.records.QuestionRecord;
+import com.dovaleac.guessing.game.model.dto.GameDefinitionDto;
 import com.dovaleac.guessing.game.model.enums.GameStatus;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
@@ -14,6 +15,8 @@ import java.util.stream.Stream;
 public class GameDaoImpl implements GameDao {
 
   public static final Game GAME = Game.GAME;
+  public static final com.dovaleac.guessing.game.jooq.generated.independent.tables.Question QUESTION =
+      com.dovaleac.guessing.game.jooq.generated.independent.tables.Question.QUESTION;
   private final DslContextSupplier dslContextSupplier;
 
   public GameDaoImpl(DslContextSupplier dslContextSupplier) {
@@ -33,7 +36,7 @@ public class GameDaoImpl implements GameDao {
   }
 
   @Override
-  public GameDto getDtoFromRecord(GameRecord gameRecord) {
+  public GameDefinitionDto getDtoFromRecord(GameRecord gameRecord) {
     return null;
   }
 
@@ -90,5 +93,17 @@ public class GameDaoImpl implements GameDao {
                     langId)
                 .returning(GAME.ID)
                 .fetchOne());
+  }
+
+  @Override
+  public Stream<QuestionRecord> getQuestionDefinitionsInGame(int gameId) {
+    return dslContextSupplier.executeFunction(dslContext -> dslContext
+    .select(QUESTION.fields())
+        .from(QUESTION)
+        .join(GAME)
+        .on(GAME.QUESTION_SET_ID.eq(QUESTION.QUESTION_SET_ID))
+        .where(GAME.ID.eq(gameId))
+        .fetchStreamInto(QuestionRecord.class)
+        );
   }
 }

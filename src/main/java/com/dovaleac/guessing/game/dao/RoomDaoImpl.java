@@ -9,6 +9,7 @@ import com.dovaleac.guessing.game.model.enums.PlayerStatus;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
 import javax.inject.Singleton;
+import java.util.stream.Stream;
 
 @Singleton
 public class RoomDaoImpl implements RoomDao {
@@ -43,12 +44,21 @@ public class RoomDaoImpl implements RoomDao {
   }
 
   @Override
-  public PlayerRecord addPlayerToRoom(int roomId, String playerName, PlayerRole contender) {
+  public PlayerRecord addPlayerToRoom(int roomId, String playerName, PlayerRole role) {
     return dslContextSupplier.executeFunction(dslContext -> dslContext
         .insertInto(PLAYER)
         .columns(PLAYER.ROOM_ID, PLAYER.NAME, PLAYER.ROLE, PLAYER.STATUS)
-        .values(roomId, playerName, contender.name(), PlayerStatus.ACTIVE.name())
+        .values(roomId, playerName, role.name(), PlayerStatus.ACTIVE.name())
         .returning(PLAYER.fields()).fetchOne()
+    );
+  }
+
+  @Override
+  public Stream<PlayerRecord> getPlayersInRoom(int roomId) {
+    return dslContextSupplier.executeFunction(dslContext -> dslContext
+        .selectFrom(PLAYER)
+        .where(PLAYER.ROOM_ID.eq(roomId))
+        .fetchStream()
     );
   }
 }

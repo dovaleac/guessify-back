@@ -10,6 +10,13 @@ public class Question {
   public Question() {
   }
 
+  public Question(String[] clues, String answer, int difficulty, String funFacts) {
+    this.clues = clues;
+    this.answer = answer;
+    this.difficulty = difficulty;
+    this.funFacts = funFacts;
+  }
+
   public String[] getClues() {
     return clues;
   }

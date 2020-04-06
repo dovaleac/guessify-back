@@ -1,6 +1,7 @@
 package com.dovaleac.guessing.game.dao;
 
 import com.dovaleac.guessing.game.jooq.generated.games.tables.QuestionInGame;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.QuestionInGameRecord;
 import com.dovaleac.guessing.game.jooq.generated.independent.tables.QuestionSet;
 import com.dovaleac.guessing.game.jooq.generated.independent.tables.records.QuestionRecord;
 import com.dovaleac.guessing.game.jooq.generated.independent.tables.records.QuestionSetRecord;
@@ -10,6 +11,7 @@ import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 import org.jooq.impl.DSL;
 
 import javax.inject.Singleton;
+import java.util.stream.Stream;
 
 @Singleton
 public class QuestionDaoImpl implements QuestionDao {
@@ -77,8 +79,8 @@ public class QuestionDaoImpl implements QuestionDao {
                             DSL.val(0),
                             DSL.rowNumber().over().orderBy(QUESTION.ID.asc()),
                             DSL.when(
-                                DSL.rowNumber().over().orderBy(QUESTION.ID.asc()).eq(1),
-                                QuestionInGameStatus.ACTIVE.name())
+                                    DSL.rowNumber().over().orderBy(QUESTION.ID.asc()).eq(1),
+                                    QuestionInGameStatus.ACTIVE.name())
                                 .otherwise(QuestionInGameStatus.READY.name()))
                         .from(QUESTION)
                         .where(QUESTION.QUESTION_SET_ID.eq(questionSetId)))
@@ -96,5 +98,15 @@ public class QuestionDaoImpl implements QuestionDao {
                 .where(QUESTION_IN_GAME.ID.eq(questionInGameId))
                 .and(QUESTION_IN_GAME.STATUS.eq(oldStatus.name()))
                 .execute());
+  }
+
+  @Override
+  public Stream<QuestionInGameRecord> getQuestionsInGameForGameId(int gameId) {
+    return dslContextSupplier.executeFunction(
+        dslContext ->
+            dslContext
+                .selectFrom(QUESTION_IN_GAME)
+                .where(QUESTION_IN_GAME.GAME_ID.eq(gameId))
+                .fetchStream());
   }
 }

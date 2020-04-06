@@ -5,11 +5,14 @@ import com.dovaleac.guessing.game.dao.RoomDao;
 import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
 import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.dto.Player;
-import com.dovaleac.guessing.game.model.dto.RoomId;
+import com.dovaleac.guessing.game.model.dto.RoomDto;
 import com.dovaleac.guessing.game.model.enums.PlayerRole;
 
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Singleton
 public class RoomServiceImpl implements RoomService {
@@ -23,8 +26,9 @@ public class RoomServiceImpl implements RoomService {
   }
 
   @Override
-  public RoomId createRoom(String number, String password) {
-    return new RoomId(roomDao.createRoomByNumberAndPassword(number, password).getId());
+  public RoomDto createRoom(String password) {
+    String number = UUID.randomUUID().toString();
+    return new RoomDto(roomDao.createRoomByNumberAndPassword(number, password).getId(), number);
   }
 
   @Override
@@ -47,5 +51,10 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public Player addMasterPlayerToGame(int roomId, String playerName) {
     return Player.fromRecord(roomDao.addPlayerToRoom(roomId, playerName, PlayerRole.MASTER));
+  }
+
+  @Override
+  public List<Player> getPlayersInRoom(int roomId) {
+    return roomDao.getPlayersInRoom(roomId).map(Player::fromRecord).collect(Collectors.toList());
   }
 }

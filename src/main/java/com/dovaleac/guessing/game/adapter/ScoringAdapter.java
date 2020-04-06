@@ -2,6 +2,7 @@ package com.dovaleac.guessing.game.adapter;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ScoringAdapter {
@@ -28,5 +29,11 @@ public class ScoringAdapter {
         .stream()
         .map(entry -> START_COUPLE + entry.getKey() + JOIN_COUPLE + entry.getValue() + END_COUPLE)
         .collect(Collectors.joining(COUPLES_SEPARATOR));
+  }
+
+  public static Map<Integer, Integer> fromCluesPerQuestion(int cluesPerQuestion) {
+    return IntStream.range(0, cluesPerQuestion)
+        .boxed()
+        .collect(Collectors.toMap(i -> i, i -> cluesPerQuestion - i));
   }
 }

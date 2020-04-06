@@ -6,11 +6,18 @@ import com.dovaleac.guessing.game.dao.QuestionDao;
 import com.dovaleac.guessing.game.dao.ScoreboardDao;
 import com.dovaleac.guessing.game.dao.ScoringDao;
 import com.dovaleac.guessing.game.jooq.generated.games.tables.records.GameRecord;
+import com.dovaleac.guessing.game.model.dto.GameDefinitionDto;
+import com.dovaleac.guessing.game.model.dto.GameDynamicInfo;
 import com.dovaleac.guessing.game.model.dto.GameId;
+import com.dovaleac.guessing.game.model.dto.QuestionDto;
+import com.dovaleac.guessing.game.model.dto.QuestionInGame;
+import com.dovaleac.guessing.game.model.enums.GameStatus;
 import com.dovaleac.guessing.game.model.request.GameConfiguration;
 import com.dovaleac.guessing.game.model.request.Question;
 
 import javax.inject.Singleton;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 public class GameServiceImpl implements GameService {
@@ -25,7 +32,8 @@ public class GameServiceImpl implements GameService {
       GameDao gameDao,
       GameConfigurationDao gameConfigurationDao,
       ScoringDao scoringDao,
-      QuestionDao questionDao, ScoreboardDao scoreboardDao) {
+      QuestionDao questionDao,
+      ScoreboardDao scoreboardDao) {
     this.gameDao = gameDao;
     this.gameConfigurationDao = gameConfigurationDao;
     this.scoringDao = scoringDao;
@@ -35,7 +43,11 @@ public class GameServiceImpl implements GameService {
 
   @Override
   public GameId createGame(
-      int roomId, int masterId, GameConfiguration gameConfiguration, Integer questionSetId, int langId) {
+      int roomId,
+      int masterId,
+      GameConfiguration gameConfiguration,
+      Integer questionSetId,
+      int langId) {
 
     if (questionSetId == null) {
       questionSetId = questionDao.createQuestionSet(langId).getId();
@@ -68,5 +80,32 @@ public class GameServiceImpl implements GameService {
   @Override
   public boolean finishGame(int gameId) {
     return gameDao.finishGame(gameId);
+  }
+
+  @Override
+  public GameDefinitionDto getGameStaticInfo(int gameId) {
+    List<QuestionDto> questions =
+        gameDao
+            .getQuestionDefinitionsInGame(gameId)
+            .map(
+                questionRecord ->
+                    new QuestionDto(
+                        questionRecord.getId(),
+                        questionRecord.getClues(),
+                        questionRecord.getAnswer(),
+                        questionRecord.getDifficulty(),
+                        questionRecord.getFunFacts()))
+            .collect(Collectors.toList());
+    GameConfiguration gameConfiguration = gameConfigurationDao.getGameConfiguration(gameId);
+    return new GameDefinitionDto(questions, gameConfiguration);
+  }
+
+  @Override
+  public GameDynamicInfo getGameDynamicInfo(int gameId) {
+    GameStatus gameStatus = GameStatus.valueOf(gameDao.getGameFromId(gameId).getStatus());
+    List<QuestionInGame> questionsInGame =
+        questionDao.getQuestionsInGameForGameId(gameId).map(QuestionInGame::fromRecord)
+        .collect(Collectors.toList());
+    return new GameDynamicInfo(gameStatus, questionsInGame);
   }
 }

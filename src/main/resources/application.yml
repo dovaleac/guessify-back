@@ -1,6 +1,9 @@
 micronaut:
   application:
     name: guessing-game
+  server:
+    cors:
+      enabled: true
 
 jdbc:
   user: pablogonzalez

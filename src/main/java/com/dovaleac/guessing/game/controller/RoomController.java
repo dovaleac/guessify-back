@@ -1,9 +1,8 @@
 package com.dovaleac.guessing.game.controller;
 
-import com.dovaleac.guessing.game.jooq.generated.games.tables.records.PlayerRecord;
 import com.dovaleac.guessing.game.model.dto.GameId;
 import com.dovaleac.guessing.game.model.dto.Player;
-import com.dovaleac.guessing.game.model.dto.RoomId;
+import com.dovaleac.guessing.game.model.dto.RoomDto;
 import com.dovaleac.guessing.game.service.RoomService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
@@ -12,6 +11,8 @@ import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.QueryValue;
+
+import java.util.List;
 
 @Controller("/room")
 public class RoomController {
@@ -31,8 +32,8 @@ public class RoomController {
   }
 
   @Post
-  public RoomId createRoom(@QueryValue String number, @QueryValue String password) {
-    return roomService.createRoom(number, password);
+  public RoomDto createRoom(@QueryValue String password) {
+    return roomService.createRoom(password);
   }
 
 
@@ -42,6 +43,11 @@ public class RoomController {
     return roomService.addPlayerToGame(roomId, name)
         .map(HttpResponse::ok)
         .orElse(HttpResponse.notFound());
+  }
+
+  @Get("/{roomId}/players")
+  public HttpResponse<List<Player>> getPlayersInRoom(@PathVariable Integer roomId) {
+    return HttpResponse.ok(roomService.getPlayersInRoom(roomId));
   }
 
   @Patch("/{roomId}/master")

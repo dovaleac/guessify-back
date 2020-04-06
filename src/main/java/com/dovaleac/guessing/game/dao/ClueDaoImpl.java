@@ -2,10 +2,12 @@ package com.dovaleac.guessing.game.dao;
 
 import com.dovaleac.guessing.game.jooq.generated.games.tables.ClueRequest;
 import com.dovaleac.guessing.game.jooq.generated.games.tables.QuestionInGame;
+import com.dovaleac.guessing.game.jooq.generated.games.tables.records.ClueRequestRecord;
 import com.dovaleac.guessing.game.utils.jooq.DslContextSupplier;
 
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
+import java.util.stream.Stream;
 
 @Singleton
 public class ClueDaoImpl implements ClueDao {
@@ -42,5 +44,14 @@ public class ClueDaoImpl implements ClueDao {
                 .set(QUESTION_IN_GAME.CURRENT_CLUE, nextClue)
                 .where(QUESTION_IN_GAME.ID.eq(questionInGameId))
                 .execute());
+  }
+
+  @Override
+  public Stream<ClueRequestRecord> getAllClueRequestsForQuestionInGame(int questionInGameId) {
+    return dslContextSupplier.executeFunction(dslContext -> dslContext
+        .selectFrom(CLUE_REQUEST)
+        .where(CLUE_REQUEST.QUESTION_IN_GAME_ID.eq(questionInGameId))
+        .fetchStream()
+    );
   }
 }
